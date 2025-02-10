@@ -1,14 +1,11 @@
 package com.springboot.uber.entities;
 
-import org.locationtech.jts.geom.Point;
-
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -18,30 +15,29 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
+@Table(indexes = {
+        @Index(name = "idx_rating_rider", columnList = "rider_id"),
+        @Index(name = "idx_rating_driver", columnList = "driver_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(indexes = {
-        @Index(name = "idx_driver_vehicle_id", columnList = "vehicleId")
-})
-public class Driver {
-
+public class Rating {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    private Ride ride;
 
-    private Double rating;
+    @ManyToOne
+    private Rider rider;
 
-    private Boolean available;
+    @ManyToOne
+    private Driver driver;
 
-    private String vehicleId;
-
-    @Column(columnDefinition = "Geometry(Point, 4326)")
-    private Point currentLocation;
+    private Integer driverRating;
+    private Integer riderRating;
 }

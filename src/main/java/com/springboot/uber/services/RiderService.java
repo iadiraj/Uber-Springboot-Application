@@ -2,6 +2,9 @@ package com.springboot.uber.services;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+
 import com.springboot.uber.dto.DriverDto;
 import com.springboot.uber.dto.RideDto;
 import com.springboot.uber.dto.RideRequestDto;
@@ -14,11 +17,11 @@ public interface RiderService {
 
     RideDto cancelRide(Long rideId);
 
-    DriverDto rateDrive(Long rideId, Integer rating);
+    DriverDto rateDriver(Long rideId, Integer rating);
 
     RiderDto getMyProfile();
 
-    List<RideDto> getAllMyRides();
+    Page<RideDto> getAllMyRides(PageRequest pageRequest);
 
     Rider createNewRider(User user);
 
