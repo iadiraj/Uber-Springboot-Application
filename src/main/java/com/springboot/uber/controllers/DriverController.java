@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping(path = "/drivers")
 @RequiredArgsConstructor
+@Secured("ROLE_DRIVER")
 public class DriverController {
     private final DriverService driverService;
 
@@ -64,11 +66,6 @@ public class DriverController {
             @RequestParam(defaultValue = "10", required = false) Integer pageSize) {
         PageRequest pageRequest = PageRequest.of(pageOffset, pageSize, Sort.by(Direction.DESC, "createdTime", "id"));
         return ResponseEntity.ok(driverService.getAllMyRides(pageRequest));
-    }
-
-    @PostMapping(path = "/rateRider/{rideId}/{rating}")
-    public ResponseEntity<RiderDto> rateRider(@PathVariable(name = "rideId") Long Id, @PathVariable Integer rating) {
-        return ResponseEntity.ok(driverService.rateRider(Id, rating));
     }
 
 }

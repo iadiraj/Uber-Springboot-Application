@@ -5,7 +5,9 @@ import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.springboot.uber.dto.DriverDto;
 import com.springboot.uber.dto.RideDto;
@@ -44,17 +46,23 @@ public class RiderServiceImpl implements RiderService {
     private final RatingService ratingService;
 
     @Override
+    @Transactional
     public RideRequestDto requestRide(RideRequestDto rideRequestDto) {
         Rider rider = getCurrentRider();
         RideRequest rideRequest = modelMapper.map(rideRequestDto, RideRequest.class);
         rideRequest.setRiderRequestStatus(RiderRequestStatus.PENDING);
         rideRequest.setRider(rider);
+
         Double fare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest);
         rideRequest.setFare(fare);
+
         RideRequest savedRideRequest = rideRequestRepository.save(rideRequest);
-        List<Driver> drivers = rideStrategyManager.driverMatchingStrategy(rider.getRating())
-                .findMatchingDriver(rideRequest);
-        // TODO: Send notification to all the drivers about this ride request
+
+        List<Driver> drivers = rideStrategyManager
+                .driverMatchingStrategy(rider.getRating()).findMatchingDriver(rideRequest);
+
+        // TODO : Send notification to all the drivers about this ride request
+
         return modelMapper.map(savedRideRequest, RideRequestDto.class);
     }
 
@@ -108,9 +116,10 @@ public class RiderServiceImpl implements RiderService {
 
     @Override
     public Rider getCurrentRider() {
-        // TODO : Implement Spring Security
-        return riderRepository.findById(1L)
-                .orElseThrow(() -> new ResourceNotFoundException("Rider not found with Id: " + 1));
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return riderRepository.findByUser(user)
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Rider not associated with user with id: " + user.getId()));
     }
 
 }

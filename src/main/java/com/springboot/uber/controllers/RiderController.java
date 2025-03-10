@@ -3,6 +3,7 @@ package com.springboot.uber.controllers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RestController
 @RequestMapping(path = "/riders")
 @RequiredArgsConstructor
+@Secured("ROLE_RIDER")
 public class RiderController {
 
     private final RiderService riderService;
@@ -52,11 +54,6 @@ public class RiderController {
             @RequestParam(defaultValue = "10", required = false) Integer pageSize) {
         PageRequest pageRequest = PageRequest.of(pageOffset, pageSize);
         return ResponseEntity.ok(riderService.getAllMyRides(pageRequest));
-    }
-
-    @PostMapping(path = "/rateDriver/{rideId}/{rating}")
-    public ResponseEntity<DriverDto> rateRider(@PathVariable(name = "rideId") Long Id, @PathVariable Integer rating) {
-        return ResponseEntity.ok(riderService.rateDriver(Id, rating));
     }
 
 }

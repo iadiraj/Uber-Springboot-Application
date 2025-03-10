@@ -1,7 +1,10 @@
 package com.springboot.uber.advices;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import javax.naming.AuthenticationException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +14,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.springboot.uber.exceptions.ResourceNotFoundException;
 import com.springboot.uber.exceptions.RuntimeConflictException;
+
+import io.jsonwebtoken.JwtException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -28,6 +33,33 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeConflictException.class)
     public ResponseEntity<ApiResponse<?>> handleRuntimeConflictException(RuntimeConflictException exception) {
         ApiError apiError = ApiError.builder().status(HttpStatus.CONFLICT).message(exception.getMessage()).build();
+        return buildErrorResponseEntity(apiError);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse<?>> handleAuthenticationException(AuthenticationException exception) {
+        ApiError apiError = ApiError.builder()
+                .status(HttpStatus.UNAUTHORIZED)
+                .message(exception.getMessage())
+                .build();
+        return buildErrorResponseEntity(apiError);
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ApiResponse<?>> handleJwtException(JwtException exception) {
+        ApiError apiError = ApiError.builder()
+                .status(HttpStatus.UNAUTHORIZED)
+                .message(exception.getMessage())
+                .build();
+        return buildErrorResponseEntity(apiError);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<?>> handleAccessDeniedException(AccessDeniedException exception) {
+        ApiError apiError = ApiError.builder()
+                .status(HttpStatus.FORBIDDEN)
+                .message(exception.getMessage())
+                .build();
         return buildErrorResponseEntity(apiError);
     }
 
